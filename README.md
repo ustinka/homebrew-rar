@@ -21,18 +21,31 @@ Alternatively, install straight from the cask file without tapping:
 brew install --cask https://raw.githubusercontent.com/ustinka/homebrew-rar/main/Casks/rar.rb
 ```
 
-## Updating the cask
+## Automatic updates
 
-When RARLAB ships a new version, bump `version` and refresh the checksums in
-`Casks/rar.rb`:
+A scheduled GitHub Actions workflow (`.github/workflows/update-cask.yml`) runs
+`scripts/update-rar.sh` daily at 12:00 UTC. The script scrapes RARLAB's
+[download page](https://www.rarlab.com/download.htm) for the latest "RAR for
+macOS" release; if it is newer than the version pinned in `Casks/rar.rb`, it
+downloads both the arm and x64 tarballs, computes their sha256 checksums,
+rewrites the cask, and commits the bump (`rar <version>`) directly to `main`.
+
+Trigger it manually any time from the repo's **Actions** tab
+("Update rar cask" → "Run workflow"), or run it locally:
 
 ```sh
-brew fetch --cask ustinka/rar/rar   # downloads both arch tarballs
-shasum -a 256 <downloaded tarball>  # or use `brew audit`/`brew bump-cask-pr` workflow
+./scripts/update-rar.sh   # updates Casks/rar.rb in place if a newer version exists
 ```
 
-The `livecheck` block lets `brew livecheck --cask ustinka/rar/rar` report the
-latest upstream version.
+> **Note:** GitHub disables `schedule` triggers after 60 days without repo
+> activity. Each automatic bump resets that clock; during long quiet stretches,
+> a manual "Run workflow" (or any commit) re-arms the daily schedule.
+
+## Updating the cask manually
+
+If you prefer to bump by hand, edit `version` and refresh both checksums in
+`Casks/rar.rb`. The `livecheck` block also lets
+`brew livecheck --cask ustinka/rar/rar` report the latest upstream version.
 
 ## Notes
 

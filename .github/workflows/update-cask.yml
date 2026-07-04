@@ -1,0 +1,34 @@
+name: Update rar cask
+
+# Check RARLAB daily for a new "RAR for macOS" release. If one is found,
+# update Casks/rar.rb (version + both sha256 checksums) and commit it.
+on:
+  schedule:
+    - cron: "0 12 * * *" # daily at 12:00 UTC
+  workflow_dispatch: # allow manual runs from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-rar-cask
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for a new rar version
+        id: check
+        run: ./scripts/update-rar.sh
+
+      - name: Commit and push the bump
+        if: steps.check.outputs.updated == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/rar.rb
+          git commit -m "rar ${{ steps.check.outputs.version }}"
+          git push
