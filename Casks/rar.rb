@@ -15,8 +15,6 @@ cask "rar" do
     regex(/>\s*RAR\s+for\s+macOS.*?v?(\d+(:?\.\d+)+)\s*</i)
   end
 
-  depends_on macos: :high_sierra
-
   binary "rar/rar"
   binary "rar/unrar"
   artifact "rar/default.sfx", target: "#{HOMEBREW_PREFIX}/lib/default.sfx"
